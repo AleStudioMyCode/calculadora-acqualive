@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Conta da Água</title>
+  <meta name="description" content="Compara o gasto com galão e o custo de ter um filtro, para usar na visita ao cliente.">
+  <meta name="theme-color" content="#0a6fa3">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icones/icone.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icones/icone-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topo">
+    <div class="topo-in">
+      <img src="icones/icone.svg" alt="" width="36" height="36">
+      <div>
+        <h1>Conta da Água</h1>
+        <p>Galão ou filtro: quanto custa cada um</p>
+      </div>
+      <button type="button" class="btn-novo" id="novoCliente">Novo cliente</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- CLIENTE -->
+    <section class="card">
+      <h2><span class="num">1</span> Cliente</h2>
+      <div class="linha2">
+        <label>Nome
+          <input id="clienteNome" type="text" autocomplete="off" placeholder="Ex.: Dona Maria">
+        </label>
+        <label>WhatsApp (opcional)
+          <input id="clienteFone" type="tel" inputmode="tel" autocomplete="off" placeholder="DDD + número">
+        </label>
+      </div>
+    </section>
+
+    <!-- HOJE -->
+    <section class="card">
+      <h2><span class="num">2</span> Como é hoje</h2>
+      <div class="campo">
+        <span class="rotulo">Compra água (galão ou garrafa)?</span>
+        <div class="seg" data-campo="compraAgua">
+          <button type="button" data-valor="sim">Sim</button>
+          <button type="button" data-valor="nao">Não</button>
+        </div>
+      </div>
+
+      <div id="blocoCompra">
+        <div class="campo">
+          <span class="rotulo">Informar consumo</span>
+          <div class="seg" data-campo="unidade">
+            <button type="button" data-valor="semana">Por semana</button>
+            <button type="button" data-valor="mes">Por mês</button>
+            <button type="button" data-valor="litrosDia">Litros/dia</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="quantidade" class="rotulo" id="rotuloQtd">Galões por semana</label>
+        <div class="stepper">
+          <button type="button" data-passo="-1" aria-label="Diminuir">−</button>
+          <input id="quantidade" type="number" inputmode="decimal" min="0" step="any">
+          <button type="button" data-passo="1" aria-label="Aumentar">+</button>
+        </div>
+        <small id="dicaQtd" class="dica"></small>
+      </div>
+
+      <div id="blocoGalao">
+        <div class="linha2">
+          <label>Tamanho
+            <select id="tamanhoGalao">
+              <option value="20">Galão 20 L</option>
+              <option value="10">Galão 10 L</option>
+              <option value="5">Galão 5 L</option>
+              <option value="1.5">Garrafa 1,5 L</option>
+              <option value="outro">Outro</option>
+            </select>
+          </label>
+          <label id="campoLitrosOutro" hidden>Litros por unidade
+            <input id="litrosOutro" type="number" inputmode="decimal" min="0" step="any">
+          </label>
+        </div>
+        <div class="linha2">
+          <label>Preço cada (R$)
+            <input id="precoGalao" type="number" inputmode="decimal" min="0" step="any">
+          </label>
+          <label>Entrega cada (R$)
+            <input id="entregaGalao" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- FILTRO -->
+    <section class="card">
+      <h2><span class="num">3</span> Filtro</h2>
+      <label>Modelo
+        <select id="modelo"></select>
+      </label>
+      <div class="linha2">
+        <label>Preço (R$)
+          <input id="precoFiltro" type="number" inputmode="decimal" min="0" step="any">
+        </label>
+        <label>Preço no Pix (R$)
+          <input id="precoPix" type="number" inputmode="decimal" min="0" step="any">
+        </label>
+      </div>
+      <small class="dica" id="dicaPix"></small>
+      <div class="campo">
+        <span class="rotulo">Pagamento</span>
+        <div class="seg" data-campo="formaPagamento">
+          <button type="button" data-valor="parcelado">Parcelado</button>
+          <button type="button" data-valor="pix">Pix à vista</button>
+        </div>
+      </div>
+      <label id="campoParcelas">Número de parcelas
+        <input id="parcelas" type="number" inputmode="numeric" min="1" step="1">
+      </label>
+    </section>
+
+    <!-- VELA -->
+    <section class="card">
+      <h2><span class="num">4</span> Refil</h2>
+      <label>Tipo
+        <select id="refil"></select>
+      </label>
+      <div class="campo">
+        <span class="rotulo">Água que entra no filtro</span>
+        <div class="seg" data-campo="fonte">
+          <button type="button" data-valor="rede">Rede</button>
+          <button type="button" data-valor="poco">Poço ou mina</button>
+        </div>
+      </div>
+      <div class="linha3">
+        <label>Preço (R$)
+          <input id="precoRefil" type="number" inputmode="decimal" min="0" step="any">
+        </label>
+        <label>Dura (meses)
+          <input id="mesesRefil" type="number" inputmode="decimal" min="0" step="any">
+        </label>
+        <label>Ou litros
+          <input id="limiteLitros" type="number" inputmode="decimal" min="0" step="any">
+        </label>
+      </div>
+      <small class="dica">Troca no que vier primeiro: meses ou litros.</small>
+      <p class="aviso" id="avisoRefil" hidden></p>
+    </section>
+
+    <!-- RESULTADO -->
+    <section class="card resultado" id="resultado" aria-live="polite">
+      <h2>Resultado</h2>
+      <div class="destaque" id="destaque"></div>
+      <dl class="grade" id="grade"></dl>
+      <div id="avisos"></div>
+    </section>
+
+    <section class="card">
+      <h2>Quanto sai do bolso por mês</h2>
+      <div id="fluxo"></div>
+    </section>
+
+    <section class="card">
+      <h2>Gasto acumulado em 3 anos</h2>
+      <div id="grafico"></div>
+      <small class="dica">O filtro já vem com a primeira vela. Cada degrau é uma troca de refil.</small>
+    </section>
+
+    <section class="card">
+      <h2>O que não é dinheiro</h2>
+      <ul class="beneficios">
+        <li>Não precisa carregar galão</li>
+        <li>Não fica sem água esperando entrega</li>
+        <li>Não guarda galão nem garrafa de plástico em casa</li>
+      </ul>
+    </section>
+
+    <!-- RESUMO -->
+    <section class="card">
+      <h2>Mandar resumo ao cliente</h2>
+      <div class="linha2">
+        <label>Seu nome
+          <input id="vendedorNome" type="text" autocomplete="name">
+        </label>
+        <label>Seu WhatsApp
+          <input id="vendedorFone" type="tel" inputmode="tel" autocomplete="tel">
+        </label>
+      </div>
+      <textarea id="textoResumo" rows="12" readonly></textarea>
+      <div class="botoes">
+        <button type="button" class="btn-zap" id="btnZap">Enviar no WhatsApp</button>
+        <button type="button" class="btn-sec" id="btnCopiar">Copiar texto</button>
+      </div>
+    </section>
+
+    <!-- AJUSTES -->
+    <details class="card ajustes">
+      <summary>Ajustes: modelos, preços e refis</summary>
+      <p class="dica">O que você mudar aqui fica salvo neste celular.</p>
+      <h3>Modelos</h3>
+      <div id="listaModelos"></div>
+      <button type="button" class="btn-sec" id="addModelo">+ Adicionar modelo</button>
+      <h3>Refis</h3>
+      <div id="listaRefis"></div>
+      <button type="button" class="btn-sec" id="addRefil">+ Adicionar refil</button>
+      <hr>
+      <button type="button" class="btn-perigo" id="restaurar">Voltar aos preços padrão</button>
+    </details>
+
+    <p class="rodape">Ferramenta do vendedor independente. Valores estimados com os números do cliente. Preços mudam: confira antes de fechar.</p>
+  </main>
+
+  <a href="#resultado" class="barra" id="barra"></a>
+
+  <script src="calc.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
