@@ -129,8 +129,7 @@
         estado.entrada.compraAgua = v === 'sim';
         if (antes !== estado.entrada.compraAgua) {
           // troca a unidade com sentido: quem não compra informa litros por dia
-          estado.entrada.quantidade = estado.entrada.compraAgua ? 2 : 4;
-          $('quantidade').value = estado.entrada.quantidade;
+          if (estado.entrada.compraAgua) { estado.entrada.quantidade = 2; $('quantidade').value = 2; }
         }
       } else if (campo === 'unidade') {
         converterUnidade(estado.entrada.unidade, v);
@@ -239,7 +238,7 @@
     return {
       compraAgua: e.compraAgua,
       unidade: e.unidade,
-      quantidade: e.quantidade,
+      quantidade: e.compraAgua ? e.quantidade : 0, // sem compra: vela troca só por tempo
       litrosGalao: litrosGalao(),
       precoGalao: e.precoGalao,
       entregaGalao: e.entregaGalao,
@@ -279,6 +278,7 @@
     });
     $('blocoCompra').hidden = !e.compraAgua;
     $('blocoGalao').hidden = !e.compraAgua;
+    $('campoQtd').hidden = !e.compraAgua;
     $('campoLitrosOutro').hidden = $('tamanhoGalao').value !== 'outro';
     $('campoParcelas').hidden = e.formaPagamento === 'pix';
 
@@ -446,7 +446,7 @@
         : num1.format(ent.quantidade) + ' ' + nomeUn[ent.quantidade === 1 ? 0 : 1] + (ent.unidade === 'mes' ? ' por mês' : ' por semana');
       L.push('💧 Hoje: ' + un + ' de ' + litrosTxt(ent.litrosGalao) + ' a ' + r2(ent.precoGalao + ent.entregaGalao) + ' cada = ' + r0(r.galaoMes) + ' por mês (' + r0(r.galaoAno) + ' por ano).');
     } else {
-      L.push('💧 Consumo considerado: ' + litrosTxt(ent.quantidade) + ' por dia.');
+      L.push('💧 Hoje a casa não compra água.');
     }
     var de = r.promoDesconto ? 'de ' + r0(r.precoBase) + ' por ' : '';
     var pixPromo = Math.max(0, pixDe(m) - r.promoDesconto);
