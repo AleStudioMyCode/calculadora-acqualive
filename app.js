@@ -489,7 +489,7 @@
     var fone = estado.entrada.clienteFone.replace(/\D/g, '');
     if (fone && fone.length <= 11) fone = '55' + fone;
     var url = 'https://wa.me/' + (fone || '') + '?text=' + encodeURIComponent(txt);
-    window.open(url, '_blank');
+    window.open(url, '_blank', 'noopener');
   });
   $('btnCopiar').addEventListener('click', function () {
     var txt = $('textoResumo').value;
@@ -505,11 +505,13 @@
   }
 
   // ---------- Ajustes ----------
+  // Só números entram nos campos: dados salvos no aparelho nunca viram HTML
+  function numAttr(v) { return C.numero(v) || ''; }
   function renderAjustes() {
     $('listaModelos').innerHTML = estado.modelos.map(function (m, i) {
       return '<div class="item-ajuste" data-i="' + i + '">' +
         '<label>Nome<input data-k="nome" value="' + esc(m.nome) + '"></label>' +
-        '<div class="linha2"><label>Preço (R$)<input data-k="preco" type="number" inputmode="decimal" step="any" value="' + m.preco + '"></label>' +
+        '<div class="linha2"><label>Preço (R$)<input data-k="preco" type="number" inputmode="decimal" step="any" value="' + numAttr(m.preco) + '"></label>' +
         '<label>Desconto no Pix<select data-k="pixPct">' + [5, 10, 15].map(function (p) {
           return '<option value="' + p + '"' + (pctDe(m) === p ? ' selected' : '') + '>' + p + '%</option>';
         }).join('') + '</select></label></div>' +
@@ -525,10 +527,10 @@
     $('listaRefis').innerHTML = estado.refis.map(function (r, i) {
       return '<div class="item-ajuste" data-i="' + i + '">' +
         '<label>Nome<input data-k="nome" value="' + esc(r.nome) + '"></label>' +
-        '<div class="linha2"><label>Preço (R$)<input data-k="preco" type="number" inputmode="decimal" step="any" value="' + r.preco + '"></label>' +
-        '<label>Limite (litros)<input data-k="litros" type="number" inputmode="decimal" step="any" value="' + (r.litros || '') + '"></label></div>' +
-        '<div class="linha2"><label>Meses na rede<input data-k="mesesRede" type="number" inputmode="decimal" step="any" value="' + r.mesesRede + '"></label>' +
-        '<label>Meses no poço<input data-k="mesesPoco" type="number" inputmode="decimal" step="any" value="' + r.mesesPoco + '"></label></div>' +
+        '<div class="linha2"><label>Preço (R$)<input data-k="preco" type="number" inputmode="decimal" step="any" value="' + numAttr(r.preco) + '"></label>' +
+        '<label>Limite (litros)<input data-k="litros" type="number" inputmode="decimal" step="any" value="' + numAttr(r.litros) + '"></label></div>' +
+        '<div class="linha2"><label>Meses na rede<input data-k="mesesRede" type="number" inputmode="decimal" step="any" value="' + numAttr(r.mesesRede) + '"></label>' +
+        '<label>Meses no poço<input data-k="mesesPoco" type="number" inputmode="decimal" step="any" value="' + numAttr(r.mesesPoco) + '"></label></div>' +
         (estado.refis.length > 1 ? '<button type="button" class="remover" data-remover="refis">Remover refil</button>' : '') +
         '</div>';
     }).join('');

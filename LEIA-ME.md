@@ -10,6 +10,7 @@ Este app compara o gasto com galão e o custo de ter um filtro. Funciona no celu
 | `calc.js` | A conta, separada para poder testar |
 | `sw.js`, `manifest.webmanifest`, `icones/` | O que transforma a página em app instalável e offline |
 | `testes.js` | Confere os casos de referência. Rode com `node app-calculadora/testes.js` |
+| `vercel.json` | Cabeçalhos de segurança do site (bloqueia scripts de fora e o app dentro de outros sites) |
 
 ## Para instalar no celular
 
