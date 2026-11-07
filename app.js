@@ -4,13 +4,13 @@
   // ---------- Padrões (preços de 05/11/2026; mudam: edite em Ajustes) ----------
   var PADRAO = {
     modelos: [
-      { id: 'vself6', nome: 'V Self 6L', preco: 2297, pix: 2182.15, tipo: 'gravidade', refil: 'laranja' },
-      { id: 'vself10', nome: 'V Self 10L', preco: 2397, pix: 2277.15, tipo: 'gravidade', refil: 'laranja' },
-      { id: 'vself6p', nome: 'V Self 6L Premium', preco: 2847, pix: 2704.65, tipo: 'gravidade', refil: 'laranja' },
-      { id: 'vself10p', nome: 'V Self 10L Premium', preco: 2947, pix: 2799.65, tipo: 'gravidade', refil: 'laranja' },
-      { id: 'terracota', nome: 'Terracota', preco: 3297, pix: 3132.15, tipo: 'gravidade', refil: 'laranja' },
-      { id: 'duolite', nome: 'Duo Lite (sob a pia)', preco: 1097, pix: 1042.15, tipo: 'pia', refil: 'duolite' },
-      { id: 'duo', nome: 'DUO (natural e gelada)', preco: 4397, pix: 4177.15, tipo: 'eletrico', refil: 'laranja' }
+      { id: 'vself6', nome: 'V Self 6L', preco: 2297, pixPct: 5, tipo: 'gravidade', refil: 'laranja' },
+      { id: 'vself10', nome: 'V Self 10L', preco: 2397, pixPct: 5, tipo: 'gravidade', refil: 'laranja' },
+      { id: 'vself6p', nome: 'V Self 6L Premium', preco: 2847, pixPct: 5, tipo: 'gravidade', refil: 'laranja' },
+      { id: 'vself10p', nome: 'V Self 10L Premium', preco: 2947, pixPct: 5, tipo: 'gravidade', refil: 'laranja' },
+      { id: 'terracota', nome: 'Terracota', preco: 3297, pixPct: 5, tipo: 'gravidade', refil: 'laranja' },
+      { id: 'duolite', nome: 'Duo Lite (sob a pia)', preco: 1097, pixPct: 5, tipo: 'pia', refil: 'duolite' },
+      { id: 'duo', nome: 'DUO (natural e gelada)', preco: 4397, pixPct: 5, tipo: 'eletrico', refil: 'laranja' }
     ],
     refis: [
       { id: 'laranja', nome: 'Vela laranja (menos magnésio)', preco: 477, mesesRede: 6, mesesPoco: 8, litros: 1500, nota: 'Limite de 1.500 L vem do site: confirme com a franquia.' },
@@ -58,6 +58,9 @@
   function promoVencida(m) { var p = promoDe(m); return !!p.ate && p.ate < hojeISO(); }
   function promoValendo(m) { var p = promoDe(m); return p.ativa && !promoVencida(m) && (p.refis > 0 || p.desconto > 0); }
   function dataBR(iso) { var a = iso.split('-'); return a[2] + '/' + a[1] + '/' + a[0]; }
+  var PCTS = [5, 10, 15];
+  function pctDe(m) { return PCTS.indexOf(Number(m.pixPct)) >= 0 ? Number(m.pixPct) : 5; }
+  function pixDe(m) { return Math.round(m.preco * (100 - pctDe(m))) / 100; }
   function novoId(p) { return p + Date.now().toString(36); }
 
   // ---------- Formatação ----------
@@ -101,7 +104,7 @@
     $('precoGalao').value = e.precoGalao;
     $('entregaGalao').value = e.entregaGalao || '';
     $('precoFiltro').value = m.preco;
-    $('precoPix').value = m.pix || '';
+    $('pixPct').value = String(pctDe(m));
     $('parcelas').value = e.parcelas;
     var p = promoDe(m);
     $('promoAtiva').checked = p.ativa && !promoVencida(m);
@@ -179,7 +182,7 @@
 
   // Campos do modelo e do refil gravam no cadastro (ficam salvos)
   $('precoFiltro').addEventListener('input', function () { modeloAtual().preco = C.numero(this.value); atualizar(); });
-  $('precoPix').addEventListener('input', function () { modeloAtual().pix = C.numero(this.value); atualizar(); });
+  $('pixPct').addEventListener('change', function () { modeloAtual().pixPct = Number(this.value); atualizar(); });
   $('promoAtiva').addEventListener('change', function () {
     var p = promoDe(modeloAtual());
     p.ativa = this.checked;
@@ -241,7 +244,7 @@
       precoGalao: e.precoGalao,
       entregaGalao: e.entregaGalao,
       precoFiltro: m.preco,
-      precoPix: m.pix,
+      precoPix: pixDe(m),
       formaPagamento: e.formaPagamento,
       parcelas: e.parcelas,
       tipoFiltro: m.tipo,
@@ -292,7 +295,8 @@
     $('dicaQtd').textContent = dica;
 
     var m = modeloAtual();
-    $('dicaPix').textContent = m.pix && m.pix < m.preco ? 'Pix com ' + r0(m.preco - m.pix) + ' de desconto. Confira o valor na hora.' : '';
+    $('precoPix').textContent = r2(pixDe(m)).replace(/^R\$\s*/, '');
+    $('dicaPix').textContent = 'No Pix: ' + r2(m.preco - pixDe(m)) + ' de desconto. Confira o valor na hora.';
 
     var p = promoDe(m);
     $('campoPromo').hidden = !$('promoAtiva').checked && !(p.ativa && promoVencida(m));
@@ -445,10 +449,10 @@
       L.push('💧 Consumo considerado: ' + litrosTxt(ent.quantidade) + ' por dia.');
     }
     var de = r.promoDesconto ? 'de ' + r0(r.precoBase) + ' por ' : '';
-    var pixPromo = m.pix && m.pix < m.preco ? Math.max(0, m.pix - r.promoDesconto) : 0;
+    var pixPromo = Math.max(0, pixDe(m) - r.promoDesconto);
     var pg = ent.formaPagamento === 'pix'
-      ? de + r0(r.precoFiltro) + ' no Pix'
-      : de + r0(r.precoFiltro) + ' em ' + r.parcelas + 'x de ' + r2(r.valorParcela) + (pixPromo ? ' (ou ' + r2(pixPromo) + ' no Pix)' : '');
+      ? de + r0(r.precoFiltro) + ' no Pix (' + pctDe(m) + '% de desconto)'
+      : de + r0(r.precoFiltro) + ' em ' + r.parcelas + 'x de ' + r2(r.valorParcela) + (pixPromo ? ' (ou ' + r2(pixPromo) + ' no Pix, ' + pctDe(m) + '% de desconto)' : '');
     L.push('🔹 Filtro ' + m.nome + ': ' + pg + '.');
     if (promoValendo(m)) {
       var pr = promoDe(m), brinde = [];
@@ -506,7 +510,9 @@
       return '<div class="item-ajuste" data-i="' + i + '">' +
         '<label>Nome<input data-k="nome" value="' + esc(m.nome) + '"></label>' +
         '<div class="linha2"><label>Preço (R$)<input data-k="preco" type="number" inputmode="decimal" step="any" value="' + m.preco + '"></label>' +
-        '<label>Pix (R$)<input data-k="pix" type="number" inputmode="decimal" step="any" value="' + (m.pix || '') + '"></label></div>' +
+        '<label>Desconto no Pix<select data-k="pixPct">' + [5, 10, 15].map(function (p) {
+          return '<option value="' + p + '"' + (pctDe(m) === p ? ' selected' : '') + '>' + p + '%</option>';
+        }).join('') + '</select></label></div>' +
         '<div class="linha2"><label>Tipo<select data-k="tipo">' + Object.keys(TIPOS).map(function (k) {
           return '<option value="' + k + '"' + (m.tipo === k ? ' selected' : '') + '>' + TIPOS[k] + '</option>';
         }).join('') + '</select></label>' +
@@ -531,7 +537,7 @@
     $(id).addEventListener('change', function (ev) {
       var el = ev.target, box = el.closest('.item-ajuste'); if (!box || !el.dataset.k) return;
       var obj = estado[lista][Number(box.dataset.i)];
-      obj[el.dataset.k] = el.type === 'number' ? C.numero(el.value) : el.value;
+      obj[el.dataset.k] = el.type === 'number' ? C.numero(el.value) : el.dataset.k === 'pixPct' ? Number(el.value) : el.value;
       if (lista === 'refis') delete obj.nota;
       recarregarTudo(false);
     });
@@ -545,7 +551,7 @@
   ligarLista('listaModelos', 'modelos');
   ligarLista('listaRefis', 'refis');
   $('addModelo').addEventListener('click', function () {
-    estado.modelos.push({ id: novoId('m'), nome: 'Novo modelo', preco: 0, pix: 0, tipo: 'gravidade', refil: estado.refis[0].id });
+    estado.modelos.push({ id: novoId('m'), nome: 'Novo modelo', preco: 0, pixPct: 5, tipo: 'gravidade', refil: estado.refis[0].id });
     recarregarTudo(true);
   });
   $('addRefil').addEventListener('click', function () {

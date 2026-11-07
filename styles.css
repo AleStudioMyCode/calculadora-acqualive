@@ -100,6 +100,12 @@ input, select, textarea {
 textarea { font-size: .9rem; resize: vertical; }
 input:focus, select:focus, textarea:focus { outline: 2px solid var(--primaria); outline-offset: 1px; }
 .linha2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+.linha-pix { display: grid; grid-template-columns: 1.15fr .8fr 1.15fr; gap: 0 8px; }
+.campo-lido {
+  display: flex; align-items: center; margin-top: 4px; min-height: 46px; padding: 10px 8px;
+  border-radius: 10px; background: var(--bom-fundo); color: var(--bom); font-weight: 700; font-size: 1rem;
+  white-space: nowrap; overflow: hidden;
+}
 .linha3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 8px; }
 @media (max-width: 360px) { .linha3 { grid-template-columns: 1fr 1fr; } }
 .dica { display: block; color: var(--suave); font-size: .8rem; margin-top: -4px; margin-bottom: 8px; }

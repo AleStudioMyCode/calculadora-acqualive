@@ -31,6 +31,6 @@ Depois de alterar qualquer arquivo, mude `VERSAO` em `sw.js` (por exemplo, `calc
 
 - O limite de 1.500 L por vela vem do site.
 - O refil do Duo Lite a R$ 887 é preço do site.
-- O preço no Pix de cada modelo, exceto o V Self 6L, foi estimado com 5% de desconto.
+- O desconto no Pix é escolhido na tela (5%, 10% ou 15%). O padrão é 5%, como no site.
 
 Todos esses valores são editáveis na tela ou em **Ajustes**.
