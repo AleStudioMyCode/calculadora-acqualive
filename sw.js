@@ -1,6 +1,6 @@
 // Guarda o app no celular para abrir sem internet.
 // Ao publicar uma versão nova, mude o número abaixo.
-const VERSAO = 'calculadora-al-v4';
+const VERSAO = 'calculadora-al-v5';
 const ARQUIVOS = [
   './', 'index.html', 'styles.css', 'calc.js', 'app.js', 'manifest.webmanifest',
   'icones/icone.svg', 'icones/icone-192.png', 'icones/icone-512.png', 'icones/icone-maskable-512.png'
