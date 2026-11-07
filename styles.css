@@ -61,11 +61,13 @@ body {
 @media (prefers-color-scheme: dark) {
   .topo { background: linear-gradient(135deg, #06354f, #0a5f8a 60%, #0e7f75); }
 }
+.topo { position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 12px rgba(0,0,0,.18); }
+.card { scroll-margin-top: 170px; }
 .topo-in { max-width: 640px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
 .topo h1 { margin: 0; font-size: 1.1rem; line-height: 1.2; }
 .topo p { margin: 0; font-size: .85rem; opacity: .9; }
 .topo-in > div { flex: 1; }
-.credito { max-width: 640px; margin: 8px auto 0; font-size: .78rem; opacity: .9; }
+.credito { max-width: 640px; margin: 14px auto 0; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.2); font-size: .78rem; opacity: .9; }
 .credito a { color: #fff; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
 .btn-novo {
   background: rgba(255,255,255,.18); color: #fff; border: 1px solid rgba(255,255,255,.4);

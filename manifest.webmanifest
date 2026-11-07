@@ -1,7 +1,7 @@
 {
   "name": "Calculadora de Consumo Acqualive",
   "short_name": "Calculadora AL",
-  "description": "Galão ou filtro: quanto custa cada um.",
+  "description": "Galão ou filtro: quanto custa cada um?",
   "lang": "pt-BR",
   "start_url": "./",
   "scope": "./",
