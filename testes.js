@@ -39,5 +39,15 @@ const okNao = !nao.temEconomia && nao.galaoMes === 0;
 if (!okNao) falhas++;
 console.log(`${okNao ? 'OK  ' : 'FALHA'} não compra água: 1º ano R$ ${nao.custoPrimeiroAnoDia.toFixed(2)}/dia (CLAUDE.md: ~R$ 7,60)`);
 
+// Promoção: Terracota com 1 refil de brinde e 3 galões/semana
+const promo = calcular({ ...base, ...vself, precoFiltro: 3297, quantidade: 3, promoRefis: 1 });
+const semPromo = calcular({ ...base, ...vself, precoFiltro: 3297, quantidade: 3 });
+perto('Terracota sem promoção, retorno', semPromo.retornoMeses, 3297 / semPromo.economiaMes, 0.01);
+perto('Terracota + 1 refil de brinde, retorno', promo.retornoMeses, (3297 - 477) / promo.economiaMes, 0.01);
+perto('Brinde não muda a economia mensal', promo.economiaMes, semPromo.economiaMes, 0.01);
+perto('Gráfico: 36 meses custa 1 refil a menos', semPromo.serieFiltro[36] - promo.serieFiltro[36], 477, 0.01);
+const desc = calcular({ ...base, ...vself, quantidade: 3, promoDesconto: 300 });
+perto('Desconto de R$ 300 no aparelho', desc.precoFiltro, 1997, 0.01);
+
 console.log(falhas ? `\n${falhas} falha(s)` : '\nTodos os casos batem.');
 process.exit(falhas ? 1 : 0);

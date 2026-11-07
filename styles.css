@@ -62,7 +62,7 @@ body {
   .topo { background: linear-gradient(135deg, #06354f, #0a5f8a 60%, #0e7f75); }
 }
 .topo-in { max-width: 640px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
-.topo h1 { margin: 0; font-size: 1.25rem; }
+.topo h1 { margin: 0; font-size: 1.1rem; line-height: 1.2; }
 .topo p { margin: 0; font-size: .85rem; opacity: .9; }
 .topo-in > div { flex: 1; }
 .btn-novo {
@@ -176,3 +176,12 @@ hr { border: 0; border-top: 1px solid var(--borda); margin: 16px 0; }
   background: var(--texto); color: var(--card); padding: 10px 16px; border-radius: 999px; font-size: .9rem; z-index: 9;
 }
 [hidden] { display: none !important; }
+
+/* Promoção */
+.promo { border: 1px dashed var(--borda); border-radius: 12px; padding: 12px; margin-top: 4px; }
+.promo .check { display: flex; align-items: center; gap: 10px; color: var(--texto); font-size: .95rem; margin: 0; cursor: pointer; }
+.promo .check input { width: 22px; height: 22px; min-height: 0; margin: 0; flex: none; accent-color: var(--primaria); }
+.promo .check small { color: var(--suave); font-weight: 400; }
+#campoPromo { margin-top: 12px; }
+.selo { display: inline-block; background: var(--primaria); color: #fff; border-radius: 999px; padding: 2px 10px; font-size: .78rem; font-weight: 700; margin-bottom: 6px; }
+@media (prefers-color-scheme: dark) { .selo { color: #06212e; } }

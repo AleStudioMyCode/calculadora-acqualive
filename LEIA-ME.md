@@ -1,4 +1,4 @@
-# Conta da Água
+# Calculadora de Consumo Acqualive
 
 Este app compara o gasto com galão e o custo de ter um filtro. Funciona no celular, sem internet, depois de aberto uma vez.
 
@@ -25,7 +25,7 @@ Mude só as variáveis no topo de `styles.css` (`--primaria`, `--agua` etc.). Qu
 
 ## Publicar uma versão nova
 
-Depois de alterar qualquer arquivo, mude `VERSAO` em `sw.js` (por exemplo, `conta-agua-v2`). Assim os celulares recebem a versão nova.
+Depois de alterar qualquer arquivo, mude `VERSAO` em `sw.js` (por exemplo, `calculadora-al-v3`). Assim os celulares recebem a versão nova.
 
 ## Dados que ainda dependem da franquia
 

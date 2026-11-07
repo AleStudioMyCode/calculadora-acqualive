@@ -24,7 +24,7 @@
     },
     vendedor: { nome: '', fone: '' }
   };
-  var CHAVE = 'contaDaAgua.v1';
+  var CHAVE = 'contaDaAgua.v1'; // mantém os ajustes já salvos no celular
   var TIPOS = { gravidade: 'Bancada, por gravidade', pia: 'Sob a pia', eletrico: 'Elétrico' };
 
   var estado = carregar();
@@ -53,6 +53,11 @@
   function modeloAtual() { return achar(estado.modelos, estado.entrada.modelo) || estado.modelos[0]; }
   function refilAtual() { return achar(estado.refis, estado.entrada.refil) || estado.refis[0]; }
   function achar(lista, id) { for (var i = 0; i < lista.length; i++) if (lista[i].id === id) return lista[i]; return null; }
+  function hojeISO() { var d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); }
+  function promoDe(m) { return m.promo || (m.promo = { ativa: false, nome: 'Black Friday', refis: 0, desconto: 0, ate: '' }); }
+  function promoVencida(m) { var p = promoDe(m); return !!p.ate && p.ate < hojeISO(); }
+  function promoValendo(m) { var p = promoDe(m); return p.ativa && !promoVencida(m) && (p.refis > 0 || p.desconto > 0); }
+  function dataBR(iso) { var a = iso.split('-'); return a[2] + '/' + a[1] + '/' + a[0]; }
   function novoId(p) { return p + Date.now().toString(36); }
 
   // ---------- Formatação ----------
@@ -98,6 +103,12 @@
     $('precoFiltro').value = m.preco;
     $('precoPix').value = m.pix || '';
     $('parcelas').value = e.parcelas;
+    var p = promoDe(m);
+    $('promoAtiva').checked = p.ativa && !promoVencida(m);
+    $('promoNome').value = p.nome || '';
+    $('promoRefis').value = p.refis || '';
+    $('promoDesconto').value = p.desconto || '';
+    $('promoAte').value = p.ate || '';
     $('precoRefil').value = r.preco;
     $('mesesRefil').value = e.fonte === 'poco' ? r.mesesPoco : r.mesesRede;
     $('limiteLitros').value = r.litros || '';
@@ -169,6 +180,16 @@
   // Campos do modelo e do refil gravam no cadastro (ficam salvos)
   $('precoFiltro').addEventListener('input', function () { modeloAtual().preco = C.numero(this.value); atualizar(); });
   $('precoPix').addEventListener('input', function () { modeloAtual().pix = C.numero(this.value); atualizar(); });
+  $('promoAtiva').addEventListener('change', function () {
+    var p = promoDe(modeloAtual());
+    p.ativa = this.checked;
+    if (p.ativa && promoVencida(modeloAtual())) { p.ate = ''; $('promoAte').value = ''; }
+    atualizar();
+  });
+  $('promoNome').addEventListener('input', function () { promoDe(modeloAtual()).nome = this.value.trim(); atualizar(); });
+  $('promoRefis').addEventListener('input', function () { promoDe(modeloAtual()).refis = Math.floor(C.numero(this.value)); atualizar(); });
+  $('promoDesconto').addEventListener('input', function () { promoDe(modeloAtual()).desconto = C.numero(this.value); atualizar(); });
+  $('promoAte').addEventListener('change', function () { promoDe(modeloAtual()).ate = this.value; preencherCampos(); atualizar(); });
   $('precoRefil').addEventListener('input', function () { refilAtual().preco = C.numero(this.value); atualizar(); });
   $('precoRefil').addEventListener('change', function () { preencherSelects(); });
   document.querySelector('.ajustes').addEventListener('toggle', function () { if (this.open) renderAjustes(); });
@@ -227,7 +248,9 @@
       precoRefil: r.preco,
       mesesRefil: C.numero($('mesesRefil').value),
       limiteLitros: r.litros,
-      fonte: e.fonte
+      fonte: e.fonte,
+      promoRefis: promoValendo(m) ? promoDe(m).refis : 0,
+      promoDesconto: promoValendo(m) ? promoDe(m).desconto : 0
     };
   }
 
@@ -271,6 +294,12 @@
     var m = modeloAtual();
     $('dicaPix').textContent = m.pix && m.pix < m.preco ? 'Pix com ' + r0(m.preco - m.pix) + ' de desconto. Confira o valor na hora.' : '';
 
+    var p = promoDe(m);
+    $('campoPromo').hidden = !$('promoAtiva').checked && !(p.ativa && promoVencida(m));
+    $('dicaPromo').textContent = promoVencida(m) ? 'A promoção acabou em ' + dataBR(p.ate) + '. Marque de novo para reativar.'
+      : p.ate ? 'Vale até ' + dataBR(p.ate) + '. Depois, desliga sozinha.'
+      : 'Fica guardada só neste modelo. Desligue quando a promoção acabar.';
+
     var nota = refilAtual().nota;
     $('avisoRefil').hidden = !nota;
     $('avisoRefil').textContent = nota || '';
@@ -284,7 +313,7 @@
     var d = $('destaque'), barra = $('barra');
     if (r.temEconomia) {
       d.className = 'destaque bom';
-      d.innerHTML = '<div class="grande">Economia de ' + r0(r.economiaMes) + ' por mês</div>' +
+      d.innerHTML = seloPromo() + '<div class="grande">Economia de ' + r0(r.economiaMes) + ' por mês</div>' +
         '<div class="sub">' + r0(r.economiaAno) + ' por ano · retorno do aparelho em ' + meses(r.retornoMeses) + '</div>';
       barra.className = 'barra bom';
       barra.textContent = 'Economia de ' + r0(r.economiaMes) + '/mês · retorno em ' + meses(r.retornoMeses).replace('cerca de ', '~');
@@ -293,7 +322,7 @@
       var linha = ent.compraAgua
         ? 'Comparado ao galão, custa ' + r0(r.custoNovoMes) + ' a mais por mês.'
         : 'Hoje não há gasto com água comprada para comparar.';
-      d.innerHTML = '<div class="grande">Custo novo de ' + r2(Math.max(r.custoNovoDia, 0)) + ' por dia</div>' +
+      d.innerHTML = seloPromo() + '<div class="grande">Custo novo de ' + r2(Math.max(r.custoNovoDia, 0)) + ' por dia</div>' +
         '<div class="sub">' + linha + ' No 1º ano, contando o aparelho: ' + r2(r.custoPrimeiroAnoDia) + ' por dia.</div>';
       barra.className = 'barra neutro';
       barra.textContent = 'Custo novo de ' + r2(Math.max(r.custoNovoDia, 0)) + ' por dia';
@@ -305,10 +334,11 @@
     h += item('Refil por mês', r0(r.refilMes), r2(r.refilDia) + ' por dia · ' + troca);
     if (r.temEconomia) {
       h += item('Economia', r0(r.economiaMes) + ' /mês', r0(r.economiaAno) + ' por ano');
-      h += item('Retorno', meses(r.retornoMeses).replace('cerca de ', '~').replace(/ \(.*\)/, ''), (r.retornoMeses >= 18 ? num1.format(r.retornoMeses / 12) + ' anos · ' : '') + 'preço ' + (ent.formaPagamento === 'pix' ? 'no Pix ' : '') + r0(r.precoFiltro));
+      h += item('Retorno', meses(r.retornoMeses).replace('cerca de ', '~').replace(/ \(.*\)/, ''), (r.retornoMeses >= 18 ? num1.format(r.retornoMeses / 12) + ' anos · ' : '') + 'preço ' + (ent.formaPagamento === 'pix' ? 'no Pix ' : '') + r0(r.precoFiltro) + (r.valorBrinde ? ' − brinde ' + r0(r.valorBrinde) : ''));
     } else {
       h += item('Aparelho', r0(r.precoFiltro), ent.formaPagamento === 'pix' ? 'no Pix' : r.parcelas + 'x de ' + r2(r.valorParcela));
     }
+    if (r.refisGratis || r.promoDesconto) h += item('Promoção', textoPromoCurto(r), r.refisGratis ? (r.refisGratis > 1 ? 'as ' + r.refisGratis + ' primeiras trocas saem' : 'a primeira troca sai') + ' sem custo' : 'já descontado no preço');
     h += item('Próxima troca de refil', mesAno(r.proximaTroca), 'a primeira vela já vem no aparelho');
     $('grade').innerHTML = h;
 
@@ -318,6 +348,17 @@
     if (r.temEconomia && r.retornoMeses > 36) av.push('Retorno longo. Para esta casa, a conversa forte é praticidade: não carregar galão e não ficar sem água.');
     if (!r.temEconomia && ent.compraAgua) av.push('Com este consumo o refil sai mais caro que o galão. Mostre a praticidade, não a conta.');
     $('avisos').innerHTML = av.map(function (t) { return '<p class="aviso">' + esc(t) + '</p>'; }).join('');
+  }
+
+  function seloPromo() {
+    var m = modeloAtual();
+    return promoValendo(m) ? '<span class="selo">🎁 ' + esc(promoDe(m).nome || 'Promoção') + '</span>' : '';
+  }
+  function textoPromoCurto(r) {
+    var t = [];
+    if (r.refisGratis) t.push(r.refisGratis + (r.refisGratis > 1 ? ' refis' : ' refil') + ' de brinde (' + r0(r.valorBrinde) + ')');
+    if (r.promoDesconto) t.push(r0(r.promoDesconto) + ' de desconto');
+    return t.join(' + ');
   }
 
   function renderFluxo(ent, r) {
@@ -403,15 +444,23 @@
     } else {
       L.push('💧 Consumo considerado: ' + litrosTxt(ent.quantidade) + ' por dia.');
     }
+    var de = r.promoDesconto ? 'de ' + r0(r.precoBase) + ' por ' : '';
+    var pixPromo = m.pix && m.pix < m.preco ? Math.max(0, m.pix - r.promoDesconto) : 0;
     var pg = ent.formaPagamento === 'pix'
-      ? r0(r.precoFiltro) + ' no Pix'
-      : r0(m.preco) + ' em ' + r.parcelas + 'x de ' + r2(r.valorParcela) + (m.pix && m.pix < m.preco ? ' (ou ' + r2(m.pix) + ' no Pix)' : '');
+      ? de + r0(r.precoFiltro) + ' no Pix'
+      : de + r0(r.precoFiltro) + ' em ' + r.parcelas + 'x de ' + r2(r.valorParcela) + (pixPromo ? ' (ou ' + r2(pixPromo) + ' no Pix)' : '');
     L.push('🔹 Filtro ' + m.nome + ': ' + pg + '.');
+    if (promoValendo(m)) {
+      var pr = promoDe(m), brinde = [];
+      if (r.refisGratis) brinde.push('ganha ' + r.refisGratis + (r.refisGratis > 1 ? ' refis' : ' refil') + ' de brinde (equivale a ' + r0(r.valorBrinde) + ')');
+      if (r.promoDesconto) brinde.push(r0(r.promoDesconto) + ' de desconto no aparelho');
+      L.push('🎁 Promoção ' + (pr.nome || '') + ': ' + brinde.join(' e ') + (pr.ate ? ', válida até ' + dataBR(pr.ate) : '') + '.');
+    }
     L.push('🔹 Refil: ' + rf.nome + ', ' + r0(rf.preco) + ', troca a cada ' + num1.format(r.mesesEfetivos) + ' meses. Dá cerca de ' + r0(r.refilMes) + ' por mês (' + r2(r.refilDia) + ' por dia).');
     L.push('');
     if (r.temEconomia) {
       L.push('✅ Economia estimada: ' + r0(r.economiaMes) + ' por mês, ' + r0(r.economiaAno) + ' por ano.');
-      L.push('⏱️ Retorno do aparelho em ' + meses(r.retornoMeses) + '.');
+      L.push('⏱️ Retorno do aparelho em ' + meses(r.retornoMeses) + (r.valorBrinde ? ', já contando o refil de brinde' : '') + '.');
     } else if (ent.compraAgua) {
       L.push('Comparando com o galão, o filtro é um custo novo de cerca de ' + r2(Math.max(r.custoNovoDia, 0)) + ' por dia (no 1º ano, contando o aparelho, ' + r2(r.custoPrimeiroAnoDia) + ' por dia).');
     } else {

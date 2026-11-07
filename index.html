@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Conta da Água</title>
+  <title>Calculadora de Consumo Acqualive</title>
   <meta name="description" content="Compara o gasto com galão e o custo de ter um filtro, para usar na visita ao cliente.">
   <meta name="theme-color" content="#0a6fa3">
   <link rel="manifest" href="manifest.webmanifest">
@@ -16,7 +16,7 @@
     <div class="topo-in">
       <img src="icones/icone.svg" alt="" width="36" height="36">
       <div>
-        <h1>Conta da Água</h1>
+        <h1>Calculadora de Consumo Acqualive</h1>
         <p>Galão ou filtro: quanto custa cada um</p>
       </div>
       <button type="button" class="btn-novo" id="novoCliente">Novo cliente</button>
@@ -120,6 +120,26 @@
       <label id="campoParcelas">Número de parcelas
         <input id="parcelas" type="number" inputmode="numeric" min="1" step="1">
       </label>
+      <div class="promo">
+        <label class="check"><input type="checkbox" id="promoAtiva"> <span>Promoção neste modelo <small>(ex.: Black Friday)</small></span></label>
+        <div id="campoPromo" hidden>
+          <label>Nome da promoção
+            <input id="promoNome" type="text" placeholder="Black Friday">
+          </label>
+          <div class="linha2">
+            <label>Refis de brinde
+              <input id="promoRefis" type="number" inputmode="numeric" min="0" step="1" placeholder="0">
+            </label>
+            <label>Desconto (R$)
+              <input id="promoDesconto" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+            </label>
+          </div>
+          <label>Válida até
+            <input id="promoAte" type="date">
+          </label>
+          <small class="dica" id="dicaPromo">Fica guardada só neste modelo. Depois da data, desliga sozinha.</small>
+        </div>
+      </div>
     </section>
 
     <!-- VELA -->

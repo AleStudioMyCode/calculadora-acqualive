@@ -15,7 +15,9 @@
    *   precoFiltro, precoPix, formaPagamento: 'parcelado' | 'pix', parcelas,
    *   tipoFiltro: 'gravidade' | 'eletrico' | 'pia',
    *   precoRefil, mesesRefil, limiteLitros,
-   *   fonte: 'rede' | 'poco'
+   *   fonte: 'rede' | 'poco',
+   *   promoDesconto: R$ de desconto no aparelho (promoção),
+   *   promoRefis: refis de brinde (promoção)
    * }
    */
   function calcular(e) {
@@ -47,13 +49,19 @@
     var trocaPorLitros = mesesAteLimite < mesesRefil;
     var refilMes = pos(e.precoRefil) / mesesEfetivos;
 
-    var precoFiltro = e.formaPagamento === 'pix' && pos(e.precoPix) > 0 ? pos(e.precoPix) : pos(e.precoFiltro);
+    var precoBase = e.formaPagamento === 'pix' && pos(e.precoPix) > 0 ? pos(e.precoPix) : pos(e.precoFiltro);
+    var promoDesconto = Math.min(pos(e.promoDesconto), precoBase);
+    var precoFiltro = precoBase - promoDesconto;
+    var refisGratis = Math.floor(pos(e.promoRefis));
+    var valorBrinde = refisGratis * pos(e.precoRefil);
     var parcelas = e.formaPagamento === 'pix' ? 1 : Math.max(1, Math.round(pos(e.parcelas) || 10));
     var valorParcela = precoFiltro / parcelas;
 
     var economiaMes = galaoMes - refilMes;
     var temEconomia = e.compraAgua && economiaMes > 0.005;
-    var retornoMeses = temEconomia ? precoFiltro / economiaMes : null;
+    // Refis de brinde: cada troca que o cliente não paga abate do investimento.
+    var investimento = Math.max(0, precoFiltro - valorBrinde);
+    var retornoMeses = temEconomia ? investimento / economiaMes : null;
 
     // Custo novo (quando não há economia): diferença de todo mês, e o 1º ano contando o aparelho
     var custoNovoMes = temEconomia ? 0 : refilMes - galaoMes;
@@ -61,7 +69,8 @@
     // O aparelho já vem com a primeira vela: no 1º ano entram só as trocas.
     var trocasAte = function (mes) { return Math.max(0, Math.ceil(mes / mesesEfetivos - 1e-9) - 1); };
     var trocasPrimeiroAno = trocasAte(12);
-    var custoPrimeiroAnoDia = (precoFiltro + trocasPrimeiroAno * pos(e.precoRefil) - 12 * galaoMes) / 365;
+    var trocasPagasPrimeiroAno = Math.max(0, trocasPrimeiroAno - refisGratis);
+    var custoPrimeiroAnoDia = (precoFiltro + trocasPagasPrimeiroAno * pos(e.precoRefil) - 12 * galaoMes) / 365;
 
     // Gasto acumulado em 36 meses (fluxo de caixa)
     var serieGalao = [], serieFiltro = [];
@@ -69,7 +78,7 @@
       serieGalao.push(galaoMes * m);
       var pago = e.formaPagamento === 'pix' ? precoFiltro : valorParcela * Math.min(m, parcelas);
       // trocas feitas até o mês m (a vela que vem no aparelho não conta)
-      var trocas = Math.floor(m / mesesEfetivos + 1e-9);
+      var trocas = Math.max(0, Math.floor(m / mesesEfetivos + 1e-9) - refisGratis);
       serieFiltro.push(pago + trocas * pos(e.precoRefil));
     }
 
@@ -87,6 +96,11 @@
       mesesEfetivos: mesesEfetivos,
       trocaPorLitros: trocaPorLitros,
       precoFiltro: precoFiltro,
+      precoBase: precoBase,
+      promoDesconto: promoDesconto,
+      refisGratis: refisGratis,
+      valorBrinde: valorBrinde,
+      investimento: investimento,
       parcelas: parcelas,
       valorParcela: valorParcela,
       pixDesconto: pos(e.precoFiltro) - (pos(e.precoPix) || pos(e.precoFiltro)),
